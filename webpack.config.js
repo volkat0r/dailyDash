@@ -16,7 +16,14 @@ module.exports = {
           'style-loader',      // CSS ins DOM einfügen
           'css-loader',        // CSS in JS übersetzen
           'postcss-loader',    // PostCSS (für Tailwind etc.)
-          'sass-loader',       // SCSS zu CSS kompilieren
+          {
+            loader: 'sass-loader',       // SCSS zu CSS kompilieren
+            options: {
+                sassOptions: {
+                    includePaths: ['./src/styles']
+                }
+            }
+          }
         ],
       },
       {
@@ -41,4 +48,5 @@ module.exports = {
     hot: true,
   },
   mode: 'development',
+  devtool: 'source-map',
 };
