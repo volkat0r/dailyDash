@@ -1,25 +1,12 @@
-
----
-
-## 🗑️ `.gitignore`
-
-Diese Datei sorgt dafür, dass sensible oder unnötige Dateien **nicht ins Git-Repo gepusht** werden:
-
-```gitignore
 # Node modules
 node_modules/
 
-# Webpack build
+# Build output
 dist/
 
-# Logs
-*.log
-
-# OS / Editor-Spezifisch
+# System files
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
 
-# Figma exports (optional)
-*.fig
+# VS Code settings
+.vscode/
