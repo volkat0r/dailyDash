@@ -50,3 +50,7 @@ dailyDash/
 ├── .gitignore
 ├── README.md
 └── package.json
+
+## 🎨 Design in Figma
+Das aktuelle UI-Design ist in Figma gepflegt:
+➡️ [dailyDash UI – Figma Design](https://www.figma.com/design/z3IYgrrTmMn8HqJRoQttGX/DailyDash?m=auto&t=blzF6xde9QlzhyNv-6)
