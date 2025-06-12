@@ -1,20 +1,8 @@
-@use 'base/reset';
-@use 'base/typography';
-@use 'components/buttons';
-@use 'components/card';
-@use 'layout/header';
-@use 'layout/footer';
-@use 'pages/home';
+@use './base/manifest' as base;
+@use './assets/manifest' as assets;
+@use './components/manifest' as components;
+@use './layout/manifest' as layout;
+@use './pages/manifest' as pages;
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
-  background: #111;
-  color: #fff;
-  font-family: sans-serif;
-
-  #testContainer{
-    background: #a39c9c;
-  }
-}

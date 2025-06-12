@@ -6,14 +6,19 @@
   </head>
   <body>
     <header>
-        <h1>dailyDash</h1>
+      <div class="text-xl text-center text-white bg-gray-800 p-4 rounded-lg">
+          <h1>dailyDash</h1>
+          <div id="clockWidget" class="p-4 bg-zinc-900 text-white rounded-2xl shadow-md flex flex-col items-center">
+            <div id="dashTime" class="text-5xl font-mono"></div>
+            <div id="dashDate" class="text-lg mt-2"></div>
+          </div>
+      </div>
     </header>
-
-    <section>
-        <div id="testContainer">
-            <p>hier kommen bald viele widgets hin die krass nach 0815 aussehen werden!</p>
-        </div>
-    </section>
-    <script src="../dist/bundle.js"></script>
+    <main>
+      <section>
+        <div class="text-xl text-center text-white bg-gray-800 p-4 rounded-lg"></div>
+      </section>
+    </main>
+    <script src="/bundle.js"></script>
   </body>
 </html>

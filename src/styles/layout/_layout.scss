@@ -1,0 +1,13 @@
+@use '../assets/colors' as *;
+
+html{
+  background: $darkGradiant;
+}
+
+body {
+  border-top: 8px solid $purpleGradiant;
+  color: green;
+  font-family: sans-serif;
+  height:100%;
+  width:100%;
+}

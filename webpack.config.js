@@ -2,11 +2,14 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/main.ts', // Einstiegspunkt
+  entry: './src/main.js', // Einstiegspunkt
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true, // dist vor Build löschen
+  },
+  resolve: {
+    extensions: ['.js', '.json', '.vue', '.ts'],
   },
   module: {
     rules: [
@@ -38,14 +41,19 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html', // HTML-Vorlage
+      template: './src/index.html',
     }),
   ],
   devServer: {
-    static: './dist',
+    static: {
+      directory: path.join(__dirname, 'dist'),
+      watch: true,
+    },
+     watchFiles: ['src/**/*.html', 'src/**/*.js', 'src/**/*.scss'],
     port: 3000,
     open: true,
-    hot: true,
+    hot: false,
+    liveReload: true, // <-- erzwingt kompletten Reload
   },
   mode: 'development',
   devtool: 'source-map',

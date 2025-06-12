@@ -8,7 +8,12 @@ import './js/ui/toggleDarkMode.js';
 import './js/components/dashboard.js';
 import './js/components/widget.js';
 
+// Widgets
+import { clockWidget } from './js/components/widgets/clockWidget.js';
+
 // Utils
 import './js/utils.js';
 
-console.log('Webpack läuft!');
+document.addEventListener('DOMContentLoaded', () => {
+  clockWidget();
+});
