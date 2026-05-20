@@ -1,13 +1,65 @@
 @use '../assets/colors' as *;
 
-html{
+html {
   background: $darkGradiant;
+  min-height: 100%;
 }
 
 body {
   border-top: 8px solid $purpleGradiant;
-  color: green;
-  font-family: sans-serif;
-  height:100%;
-  width:100%;
+  color: $copyText;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+}
+
+.dash-main {
+  width: min(1200px, calc(100% - 2.5rem));
+  margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+.dash-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.dash-card {
+  grid-column: span 3;
+}
+
+.dash-card--lg {
+  grid-column: span 3;
+}
+
+.dash-card--wide {
+  grid-column: span 6;
+}
+
+.dash-card--chart {
+  grid-column: span 9;
+}
+
+@media (max-width: 1100px) {
+  .dash-card,
+  .dash-card--lg,
+  .dash-card--wide,
+  .dash-card--chart {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 720px) {
+  .dash-main {
+    width: min(1200px, calc(100% - 1rem));
+  }
+
+  .dash-card,
+  .dash-card--lg,
+  .dash-card--wide,
+  .dash-card--chart {
+    grid-column: span 12;
+  }
 }

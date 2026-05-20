@@ -45,15 +45,12 @@ module.exports = {
     }),
   ],
   devServer: {
-    static: {
-      directory: path.join(__dirname, 'dist'),
-      watch: true,
-    },
-     watchFiles: ['src/**/*.html', 'src/**/*.js', 'src/**/*.scss'],
+    static: false,
+    watchFiles: ['src/**/*.html', 'src/**/*.js', 'src/**/*.scss'],
     port: 3000,
     open: true,
-    hot: false,
-    liveReload: true, // <-- erzwingt kompletten Reload
+    hot: true,
+    liveReload: true,
   },
   mode: 'development',
   devtool: 'source-map',

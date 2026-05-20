@@ -1,0 +1,73 @@
+@use '../assets/colors' as *;
+
+.dash-card {
+	background: linear-gradient(165deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 0.65rem;
+	min-height: 140px;
+	padding: 0.9rem 1rem;
+	box-shadow: 0 14px 28px rgba(4, 8, 24, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(4px);
+
+	h2 {
+		margin: 0;
+		font-size: 0.85rem;
+		font-weight: 500;
+		color: color-mix(in srgb, $copyText 80%, $muted 20%);
+	}
+
+	p {
+		margin: 0.5rem 0 0;
+		color: $muted;
+		font-size: 0.85rem;
+	}
+}
+
+.dash-card--kpi {
+	display: grid;
+	align-content: center;
+}
+
+.kpi {
+	font-size: 2.2rem;
+	font-weight: 700;
+	color: $copyText;
+	line-height: 1;
+	margin-top: 0.7rem;
+}
+
+.kpi--sm {
+	font-size: 1.8rem;
+}
+
+.muted {
+	color: $muted;
+}
+
+.task-list {
+	margin: 0.75rem 0 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 0.45rem;
+
+	li {
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 0.45rem;
+		padding: 0.45rem 0.6rem;
+		background: rgba(4, 9, 24, 0.25);
+		color: color-mix(in srgb, $copyText 85%, $muted 15%);
+		font-size: 0.8rem;
+	}
+}
+
+.chart-line {
+	margin-top: 1.2rem;
+	height: 130px;
+	border-radius: 0.6rem;
+	background:
+		radial-gradient(circle at 20% 55%, rgba(255, 95, 146, 0.6), transparent 23%),
+		radial-gradient(circle at 55% 35%, rgba(201, 92, 255, 0.55), transparent 20%),
+		radial-gradient(circle at 82% 65%, rgba(111, 124, 255, 0.55), transparent 18%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
