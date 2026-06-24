@@ -18,6 +18,8 @@
     "vue3-apexcharts": "^1.11.1"
   },
   "devDependencies": {
+    "@types/gapi": "^0.0.47",
+    "@types/gapi.calendar": "^3.0.11",
     "@types/node": "^24.13.2",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/tsconfig": "^0.9.1",

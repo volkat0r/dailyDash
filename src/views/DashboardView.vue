@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import WeatherWidget from '@/components/widgets/WeatherWidget.vue'
 import SportTargetWidget from '@/components/widgets/SportTargetWidget.vue'
+import MeetingsWidget from '@/components/widgets/MeetingsWidget.vue'
 
 function getWeekNumber(d: Date): number {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -29,7 +30,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 
       <!-- Zeile 2 links: Meetings + Weather -->
       <div class="left-column">
-        <div class="placeholder tall">DailyMeetings</div>
+        <MeetingsWidget />
         <WeatherWidget />
       </div>
 
