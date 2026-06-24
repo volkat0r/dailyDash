@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import WeatherWidget from '@/components/widgets/WeatherWidget.vue'
+import SportTargetWidget from '@/components/widgets/SportTargetWidget.vue'
 
 function getWeekNumber(d: Date): number {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -20,12 +21,11 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
       <p>{{ currentDate }}</p>
     </header>
 
-    <!-- Dashboard Grid -->
     <main class="dashboard-grid">
-      <!-- Zeile 1: Sport-Ziele (Platzhalter) -->
-      <div class="placeholder">runTarget</div>
-      <div class="placeholder">bikeTarget</div>
-      <div class="placeholder">swimTarget</div>
+      <!-- Zeile 1: Sport-Ziele -->
+      <SportTargetWidget sport="run" />
+      <SportTargetWidget sport="bike" />
+      <SportTargetWidget sport="swim" />
 
       <!-- Zeile 2 links: Meetings + Weather -->
       <div class="left-column">
@@ -36,7 +36,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
       <!-- Zeile 2 mitte: Tasks + Weight -->
       <div class="center-column">
         <div class="placeholder">dailyTasks</div>
-        <div class="placeholder">dailyWeight</div>
+        <div class="placeholder tall">dailyWeight</div>
       </div>
 
       <!-- Zeile 2 rechts: lastActivities -->
