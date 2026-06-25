@@ -64,7 +64,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.875rem;
   flex-shrink: 0;
 
   h1 {
@@ -89,7 +89,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto 1fr;
-  gap: 1rem;
+  gap: 0.75rem;
   flex: 1;
   min-height: 0;
 }
@@ -99,7 +99,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 .right-column {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   min-height: 0;
   overflow: hidden;
 }

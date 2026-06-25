@@ -65,7 +65,7 @@ const chartOptions = computed((): ApexOptions => ({
   <div class="gauge-wrapper">
     <VueApexCharts
       type="radialBar"
-      height="160"
+      height="130"
       :options="chartOptions"
       :series="[percentage]"
     />
