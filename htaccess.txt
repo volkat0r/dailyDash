@@ -1,0 +1,11 @@
+Options -MultiViews
+RewriteEngine On
+
+# Bestehende Weiterleitung umgestalt.de → /portfolio/
+RewriteCond %{HTTP_HOST} ^(www\.)?umgestalt\.de$ [NC]
+RewriteCond %{REQUEST_URI} !^/portfolio/
+RewriteRule ^(.*)$ /portfolio/$1 [L]
+
+# Vue Router: alle Routen auf index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QR,L]

@@ -127,6 +127,26 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    height: auto;
+    overflow: auto;
+    padding: 1rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    flex: none;
+  }
+
+  .left-column,
+  .center-column,
+  .right-column {
+    overflow: visible;
+  }
+}
+
 .demo-banner {
   text-align: center;
   font-size: 0.72rem;
