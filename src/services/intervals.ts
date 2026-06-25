@@ -11,7 +11,7 @@ const client = axios.create({
 
 export async function fetchActivities(): Promise<Activity[]> {
   const oldest = getDateDaysAgo(90)
-  const newest = new Date().toISOString().split('T')[0]
+  const newest = today()
 
   const { data } = await client.get(`/athlete/${ATHLETE_ID}/activities`, {
     params: { oldest, newest },
@@ -43,25 +43,39 @@ export async function fetchStats(): Promise<GarminStats> {
   }
 }
 
-export async function fetchWeeklySums(): Promise<Record<string, number>> {
-  const now   = new Date()
-  const start = new Date(now)
-  start.setDate(now.getDate() - now.getDay() + 1)
+export async function fetchSumsForPeriod(
+  period: 'week' | 'month' | 'year'
+): Promise<Record<'run' | 'bike' | 'swim', number>> {
+  const oldest = periodStart(period)
+  const newest = today()
 
   const { data } = await client.get(`/athlete/${ATHLETE_ID}/activities`, {
-    params: {
-      oldest: start.toISOString().split('T')[0],
-      newest: new Date().toISOString().split('T')[0],
-    },
+    params: { oldest, newest },
   })
 
-  const sums: Record<string, number> = { run: 0, bike: 0, swim: 0 }
+  const sums = { run: 0, bike: 0, swim: 0 }
   data.forEach((a: { type: string; distance: number }) => {
     const sport = mapSport(a.type)
-    sums[sport] = (sums[sport] ?? 0) + (a.distance ?? 0) / 1000
+    sums[sport] = Math.round((sums[sport] + (a.distance ?? 0) / 1000) * 100) / 100
   })
-
   return sums
+}
+
+function periodStart(period: 'week' | 'month' | 'year'): string {
+  const now = new Date()
+  if (period === 'week') {
+    const d = new Date(now)
+    d.setDate(now.getDate() - ((now.getDay() + 6) % 7)) // Montag
+    return d.toISOString().split('T')[0]
+  }
+  if (period === 'month') {
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`
+  }
+  return `${now.getFullYear()}-01-01`
+}
+
+function today(): string {
+  return new Date().toISOString().split('T')[0]
 }
 
 function getDateDaysAgo(days: number): string {
