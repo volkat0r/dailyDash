@@ -104,12 +104,12 @@ const chartOptions = computed((): ApexOptions => ({
 
 const minWeight = computed(() => {
   if (!store.sorted.length) return 0
-  return Math.floor(Math.min(...store.sorted.map(e => e.weight)) - 2)
+  return Math.floor(Math.min(...store.sorted.map(e => e.weight)) - 5)
 })
 
 const maxWeight = computed(() => {
   if (!store.sorted.length) return 100
-  return Math.ceil(Math.max(...store.sorted.map(e => e.weight)) + 2)
+  return Math.ceil(Math.max(...store.sorted.map(e => e.weight)) + 5)
 })
 </script>
 
