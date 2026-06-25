@@ -46,6 +46,24 @@ export async function fetchTasks(): Promise<Task[]> {
   }))
 }
 
+export async function createTask(content: string, projectId?: string): Promise<Task> {
+  const body: Record<string, string> = { content }
+  if (projectId) body.project_id = projectId
+
+  const { data: t } = await client.post('/tasks', body)
+  const projects = await fetchProjects()
+  const projectMap = new Map(projects.map(p => [p.id, p.name]))
+
+  return {
+    id: t.id,
+    content: t.content,
+    completed: false,
+    projectId: t.project_id,
+    projectName: projectMap.get(t.project_id) ?? 'Eingang',
+    due: t.due?.date,
+  }
+}
+
 export async function closeTask(id: string): Promise<void> {
   await client.post(`/tasks/${id}/close`)
 }

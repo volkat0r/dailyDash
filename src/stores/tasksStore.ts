@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Task } from '@/types'
-import { fetchTasks, closeTask, reopenTask } from '@/services/todoist'
+import { fetchTasks, closeTask, reopenTask, createTask, fetchProjects } from '@/services/todoist'
+import type { TaskProject } from '@/types'
 
 export const useTasksStore = defineStore('tasks', () => {
-  const tasks   = ref<Task[]>([])
-  const loading = ref(false)
-  const error   = ref<string | null>(null)
+  const tasks    = ref<Task[]>([])
+  const allProjects = ref<TaskProject[]>([])
+  const loading  = ref(false)
+  const adding   = ref(false)
+  const error    = ref<string | null>(null)
 
   // Alle Projekt-Namen die aktuell in den Tasks vorkommen
   const projects = computed(() => {
@@ -28,11 +31,23 @@ export const useTasksStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
-      tasks.value = await fetchTasks()
+      const [fetched, projects] = await Promise.all([fetchTasks(), fetchProjects()])
+      tasks.value = fetched
+      allProjects.value = projects
     } catch {
       error.value = 'Aufgaben konnten nicht geladen werden.'
     } finally {
       loading.value = false
+    }
+  }
+
+  async function addTask(content: string, projectId?: string) {
+    adding.value = true
+    try {
+      const task = await createTask(content, projectId)
+      tasks.value.unshift(task)
+    } finally {
+      adding.value = false
     }
   }
 
@@ -52,5 +67,5 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  return { tasks, loading, error, projects, tasksByProject, load, toggleTask }
+  return { tasks, allProjects, loading, adding, error, projects, tasksByProject, load, toggleTask, addTask }
 })

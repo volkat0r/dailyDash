@@ -1,9 +1,27 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useTasksStore } from '@/stores/tasksStore'
 
 const store = useTasksStore()
 onMounted(() => store.load())
+
+const showForm    = ref(false)
+const newContent  = ref('')
+const newProject  = ref('')
+
+async function submitTask() {
+  if (!newContent.value.trim()) return
+  await store.addTask(newContent.value.trim(), newProject.value || undefined)
+  newContent.value = ''
+  newProject.value = ''
+  showForm.value   = false
+}
+
+function openForm() {
+  showForm.value  = true
+  newContent.value = ''
+  newProject.value  = store.allProjects[0]?.id ?? ''
+}
 </script>
 
 <template>
@@ -12,12 +30,35 @@ onMounted(() => store.load())
     <div class="widget-header">
       <span class="widget-label">daily<strong>Tasks</strong></span>
       <div class="header-actions">
-        <button class="btn-reload" @click="store.load()" :disabled="store.loading" aria-label="Neu laden">
-          ↻
+        <button class="btn-reload" @click="store.load()" :disabled="store.loading" aria-label="Neu laden">↻</button>
+        <button class="btn-add" @click="showForm ? showForm = false : openForm()" :title="showForm ? 'Abbrechen' : 'Aufgabe hinzufügen'">
+          {{ showForm ? '✕' : '+' }}
         </button>
         <button class="widget-menu" aria-label="Menü">⋮</button>
       </div>
     </div>
+
+    <!-- Neue Aufgabe Formular -->
+    <form v-if="showForm" class="add-form" @submit.prevent="submitTask">
+      <input
+        v-model="newContent"
+        type="text"
+        placeholder="Aufgabe eingeben…"
+        class="add-input"
+        autofocus
+        required
+      />
+      <select v-model="newProject" class="add-select">
+        <option
+          v-for="p in store.allProjects"
+          :key="p.id"
+          :value="p.id"
+        >{{ p.name }}</option>
+      </select>
+      <button type="submit" class="btn-save" :disabled="store.adding">
+        {{ store.adding ? '…' : '✓' }}
+      </button>
+    </form>
 
     <!-- Loading -->
     <div v-if="store.loading" class="state-msg">Lade Aufgaben…</div>
@@ -112,6 +153,19 @@ onMounted(() => store.load())
     gap: 0.25rem;
   }
 
+  .btn-add {
+    background: none;
+    border: none;
+    color: var(--color-pink);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    transition: opacity 0.15s;
+    &:hover { opacity: 0.7; }
+  }
+
   .btn-reload, .widget-menu {
     background: none;
     border: none;
@@ -124,6 +178,51 @@ onMounted(() => store.load())
     &:hover { color: var(--color-text); }
     &:disabled { opacity: 0.4; cursor: default; }
   }
+}
+
+.add-form {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.add-input {
+  flex: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+  color: var(--color-text);
+  font-size: 0.78rem;
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  min-width: 0;
+  &:focus { border-color: var(--color-pink); }
+  &::placeholder { color: var(--color-muted); }
+}
+
+.add-select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  padding: 0.4rem 0.5rem;
+  outline: none;
+  cursor: pointer;
+  max-width: 110px;
+  &:focus { border-color: var(--color-pink); }
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #e040fb, #7c3aed);
+  border: none;
+  border-radius: 0.4rem;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  flex-shrink: 0;
+  &:disabled { opacity: 0.5; cursor: default; }
 }
 
 .state-msg {
