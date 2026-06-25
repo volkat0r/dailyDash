@@ -53,17 +53,22 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 
 <style scoped lang="scss">
 .dashboard-wrapper {
+  height: 100vh;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .dashboard-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 
   h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 300;
     letter-spacing: 0.15em;
 
@@ -73,7 +78,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   p {
     font-size: 0.8rem;
     color: var(--color-muted);
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
     letter-spacing: 0.05em;
   }
 }
@@ -81,7 +86,10 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
 }
 
 .left-column,
@@ -89,7 +97,9 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 .right-column {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .placeholder {

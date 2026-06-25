@@ -187,6 +187,9 @@ function weekSums(activities: Activity[]): string {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  min-height: 0;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .widget-header {

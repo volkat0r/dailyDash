@@ -91,6 +91,8 @@ function eventColor(colorId?: string): string {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .widget-header {

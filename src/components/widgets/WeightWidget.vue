@@ -175,6 +175,8 @@ const maxWeight = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .widget-header {

@@ -93,6 +93,8 @@ function formatDate(dateStr: string): string {
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .widget-header {
@@ -124,12 +126,15 @@ function formatDate(dateStr: string): string {
 .current-weather {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 0.375rem;
+  text-align: center;
 }
 
 .current-meta {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.375rem;
   font-size: 0.7rem;
   color: var(--color-muted);
@@ -152,6 +157,7 @@ function formatDate(dateStr: string): string {
   color: var(--color-muted);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
 
   .wind { color: var(--color-muted); }

@@ -90,6 +90,8 @@ onMounted(() => store.load())
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .widget-header {
@@ -134,10 +136,9 @@ onMounted(() => store.load())
 }
 
 .projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
-  align-items: start;
 }
 
 .project-column {
