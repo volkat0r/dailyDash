@@ -9,9 +9,12 @@ const client = axios.create({
   auth: { username: 'API_KEY', password: API_KEY },
 })
 
-export async function fetchActivities(limit = 10): Promise<Activity[]> {
+export async function fetchActivities(): Promise<Activity[]> {
+  const oldest = getDateDaysAgo(90)
+  const newest = new Date().toISOString().split('T')[0]
+
   const { data } = await client.get(`/athlete/${ATHLETE_ID}/activities`, {
-    params: { limit },
+    params: { oldest, newest },
   })
 
   return data.map((a: {
@@ -48,7 +51,7 @@ export async function fetchWeeklySums(): Promise<Record<string, number>> {
   const { data } = await client.get(`/athlete/${ATHLETE_ID}/activities`, {
     params: {
       oldest: start.toISOString().split('T')[0],
-      limit: 100,
+      newest: new Date().toISOString().split('T')[0],
     },
   })
 
@@ -59,6 +62,12 @@ export async function fetchWeeklySums(): Promise<Record<string, number>> {
   })
 
   return sums
+}
+
+function getDateDaysAgo(days: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() - days)
+  return d.toISOString().split('T')[0]
 }
 
 function mapSport(type: string): 'run' | 'bike' | 'swim' {

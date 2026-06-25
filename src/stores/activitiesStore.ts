@@ -13,7 +13,7 @@ export const useActivitiesStore = defineStore('activities', () => {
     loading.value = true
     error.value   = null
     try {
-      const [acts, st] = await Promise.all([fetchActivities(8), fetchStats()])
+      const [acts, st] = await Promise.all([fetchActivities(), fetchStats()])
       activities.value = acts
       stats.value      = st
     } catch {
