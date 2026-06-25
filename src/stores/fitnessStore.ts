@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { fetchSumsForPeriod } from '@/services/intervals'
+import { DEMO_SUMS } from '@/demo/mockData'
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const GOALS_KEY = 'dailydash_sport_goals'
 
@@ -45,6 +48,10 @@ export const useFitnessStore = defineStore('fitness', () => {
   })))
 
   async function load() {
+    if (IS_DEMO) {
+      sums.value = { ...DEMO_SUMS }
+      return
+    }
     loading.value = true
     error.value   = null
     try {

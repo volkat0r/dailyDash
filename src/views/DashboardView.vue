@@ -7,6 +7,8 @@ import LastActivitiesWidget from '@/components/widgets/LastActivitiesWidget.vue'
 import WeightWidget from '@/components/widgets/WeightWidget.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
+
 function getWeekNumber(d: Date): number {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
   date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7))
@@ -20,6 +22,11 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 
 <template>
   <div class="dashboard-wrapper">
+    <!-- Demo-Banner -->
+    <div v-if="IS_DEMO" class="demo-banner">
+      Demo-Modus — alle Daten sind Beispieldaten
+    </div>
+
     <!-- Header -->
     <header class="dashboard-header">
       <div class="header-top">
@@ -118,6 +125,18 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   gap: 0.75rem;
   min-height: 0;
   overflow: hidden;
+}
+
+.demo-banner {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-card);
+  background: linear-gradient(90deg, #e040fb, #7c3aed);
+  border-radius: 0.4rem;
+  padding: 0.3rem 1rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
 }
 
 .placeholder {

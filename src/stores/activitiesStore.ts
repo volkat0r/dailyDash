@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Activity, GarminStats } from '@/types'
 import { fetchActivities, fetchStats } from '@/services/intervals'
+import { DEMO_ACTIVITIES } from '@/demo/mockData'
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export const useActivitiesStore = defineStore('activities', () => {
   const activities = ref<Activity[]>([])
@@ -10,6 +13,11 @@ export const useActivitiesStore = defineStore('activities', () => {
   const error      = ref<string | null>(null)
 
   async function load() {
+    if (IS_DEMO) {
+      activities.value = DEMO_ACTIVITIES
+      stats.value      = { vo2max: 52 }
+      return
+    }
     loading.value = true
     error.value   = null
     try {

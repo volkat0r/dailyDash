@@ -1,12 +1,13 @@
-import axios from 'axios'
 import type { Task, TaskProject } from '@/types'
+import { createClient } from '@/services/apiClient'
 
 const TOKEN = import.meta.env.VITE_TODOIST_TOKEN as string
 
-const client = axios.create({
-  baseURL: '/api/todoist',
-  headers: { Authorization: `Bearer ${TOKEN}` },
-})
+// Im Dev: Token hier gesetzt — in Prod: Railway setzt ihn serverseitig
+const client = createClient('todoist')
+if (import.meta.env.DEV) {
+  client.defaults.headers.common['Authorization'] = `Bearer ${TOKEN}`
+}
 
 export async function fetchProjects(): Promise<TaskProject[]> {
   try {

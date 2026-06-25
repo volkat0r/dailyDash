@@ -1,13 +1,15 @@
-import axios from 'axios'
 import type { Activity, GarminStats } from '@/types'
+import { createClient } from '@/services/apiClient'
 
 const ATHLETE_ID = import.meta.env.VITE_INTERVALS_ATHLETE_ID as string
 const API_KEY    = import.meta.env.VITE_INTERVALS_API_KEY as string
 
-const client = axios.create({
-  baseURL: '/api/intervals',
-  auth: { username: 'API_KEY', password: API_KEY },
-})
+// Im Dev: Auth-Header hier gesetzt (Vite-Proxy leitet weiter)
+// In Prod: Railway-Server setzt den Auth-Header serverseitig
+const client = createClient('intervals')
+if (import.meta.env.DEV) {
+  client.defaults.auth = { username: 'API_KEY', password: API_KEY }
+}
 
 export async function fetchActivities(): Promise<Activity[]> {
   const oldest = getDateDaysAgo(90)

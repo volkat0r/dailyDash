@@ -4,6 +4,9 @@ import type { Task } from '@/types'
 import { fetchTasks, closeTask, reopenTask, createTask, deleteTask, fetchProjects } from '@/services/todoist'
 import type { TaskProject } from '@/types'
 import { useToastStore } from '@/stores/toastStore'
+import { DEMO_TASKS, DEMO_PROJECTS } from '@/demo/mockData'
+
+const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 export const useTasksStore = defineStore('tasks', () => {
   const tasks    = ref<Task[]>([])
@@ -29,6 +32,11 @@ export const useTasksStore = defineStore('tasks', () => {
   })
 
   async function load() {
+    if (IS_DEMO) {
+      tasks.value       = [...DEMO_TASKS]
+      allProjects.value = DEMO_PROJECTS
+      return
+    }
     loading.value = true
     error.value = null
     try {
