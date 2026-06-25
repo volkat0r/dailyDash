@@ -102,15 +102,8 @@ const chartOptions = computed((): ApexOptions => ({
   dataLabels: { enabled: false },
 }))
 
-const minWeight = computed(() => {
-  if (!store.sorted.length) return 0
-  return Math.floor(Math.min(...store.sorted.map(e => e.weight)) - 5)
-})
-
-const maxWeight = computed(() => {
-  if (!store.sorted.length) return 100
-  return Math.ceil(Math.max(...store.sorted.map(e => e.weight)) + 5)
-})
+const minWeight = computed(() => 80)
+const maxWeight = computed(() => 94)
 </script>
 
 <template>
