@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Task } from '@/types'
-import { fetchTasks, closeTask, reopenTask, createTask, fetchProjects } from '@/services/todoist'
+import { fetchTasks, closeTask, reopenTask, createTask, deleteTask, fetchProjects } from '@/services/todoist'
 import type { TaskProject } from '@/types'
+import { useToastStore } from '@/stores/toastStore'
 
 export const useTasksStore = defineStore('tasks', () => {
   const tasks    = ref<Task[]>([])
@@ -35,19 +36,37 @@ export const useTasksStore = defineStore('tasks', () => {
       tasks.value = fetched
       allProjects.value = projects
     } catch {
+      const toast = useToastStore()
       error.value = 'Aufgaben konnten nicht geladen werden.'
+      toast.error('Todoist: Aufgaben konnten nicht geladen werden.')
     } finally {
       loading.value = false
     }
   }
 
   async function addTask(content: string, projectId?: string) {
+    const toast = useToastStore()
     adding.value = true
     try {
       const task = await createTask(content, projectId)
       tasks.value.unshift(task)
+      toast.success('Aufgabe erstellt.')
+    } catch {
+      toast.error('Aufgabe konnte nicht erstellt werden.')
     } finally {
       adding.value = false
+    }
+  }
+
+  async function removeTask(id: string) {
+    const toast = useToastStore()
+    const prev = [...tasks.value]
+    tasks.value = tasks.value.filter(t => t.id !== id)
+    try {
+      await deleteTask(id)
+    } catch {
+      tasks.value = prev
+      toast.error('Aufgabe konnte nicht gelöscht werden.')
     }
   }
 
@@ -67,5 +86,5 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  return { tasks, allProjects, loading, adding, error, projects, tasksByProject, load, toggleTask, addTask }
+  return { tasks, allProjects, loading, adding, error, projects, tasksByProject, load, toggleTask, addTask, removeTask }
 })

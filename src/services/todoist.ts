@@ -71,3 +71,7 @@ export async function closeTask(id: string): Promise<void> {
 export async function reopenTask(id: string): Promise<void> {
   await client.post(`/tasks/${id}/reopen`)
 }
+
+export async function deleteTask(id: string): Promise<void> {
+  await client.delete(`/tasks/${id}`)
+}

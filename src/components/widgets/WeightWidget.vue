@@ -6,15 +6,22 @@ import type { ApexOptions } from 'apexcharts'
 
 const store = useWeightStore()
 
-const newWeight = ref<number | null>(null)
-const newDate   = ref(new Date().toISOString().split('T')[0])
-const showInput = ref(false)
+const newWeight  = ref<number | null>(null)
+const newDate    = ref(new Date().toISOString().split('T')[0])
+const showInput  = ref(false)
+const showGoal   = ref(false)
+const newGoal    = ref<number | null>(store.goalWeight)
 
 function submit() {
   if (!newWeight.value || newWeight.value < 30 || newWeight.value > 300) return
   store.addEntry(newWeight.value, newDate.value)
   newWeight.value = null
   showInput.value = false
+}
+
+function saveGoal() {
+  store.setGoal(newGoal.value)
+  showGoal.value = false
 }
 
 const chartSeries = computed(() => [{
@@ -46,6 +53,20 @@ const chartOptions = computed((): ApexOptions => ({
       ],
     },
   },
+  annotations: store.goalWeight ? {
+    yaxis: [{
+      y: store.goalWeight,
+      borderColor: '#34d399',
+      borderWidth: 1.5,
+      strokeDashArray: 4,
+      label: {
+        text: `Ziel: ${store.goalWeight} kg`,
+        style: { background: 'transparent', color: '#34d399', fontSize: '0.65rem', fontWeight: 500 },
+        position: 'right',
+        offsetX: -8,
+      },
+    }],
+  } : {},
   markers: {
     size: 3,
     colors: ['#e040fb'],
@@ -105,7 +126,12 @@ const maxWeight = computed(() => {
       <div class="header-actions">
         <button
           class="btn-add"
-          @click="showInput = !showInput"
+          @click="showGoal = !showGoal; showInput = false"
+          title="Zielgewicht setzen"
+        >🎯</button>
+        <button
+          class="btn-add"
+          @click="showInput = !showInput; showGoal = false"
           :title="showInput ? 'Abbrechen' : 'Gewicht eintragen'"
         >
           {{ showInput ? '✕' : '+' }}
@@ -113,6 +139,22 @@ const maxWeight = computed(() => {
         <button class="widget-menu" aria-label="Menü">⋮</button>
       </div>
     </div>
+
+    <!-- Zielgewicht -->
+    <form v-if="showGoal" class="weight-form" @submit.prevent="saveGoal">
+      <label class="goal-label">Zielgewicht</label>
+      <input
+        v-model.number="newGoal"
+        type="number"
+        step="0.1"
+        min="30"
+        max="300"
+        placeholder="kg"
+        class="input-field weight-input"
+      />
+      <button type="submit" class="btn-save">✓</button>
+      <button type="button" class="btn-save btn-remove" @click="store.setGoal(null); showGoal = false">✕</button>
+    </form>
 
     <!-- Eingabe -->
     <form v-if="showInput" class="weight-form" @submit.prevent="submit">
@@ -222,7 +264,18 @@ const maxWeight = computed(() => {
     &:hover { color: var(--color-text); }
   }
 
-  .btn-add { font-size: 1.3rem; line-height: 1; }
+  .btn-add { font-size: 1.1rem; line-height: 1; }
+}
+
+.goal-label {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.btn-remove {
+  background: rgba(248,113,113,0.15) !important;
+  &:hover { opacity: 0.7; }
 }
 
 .weight-form {

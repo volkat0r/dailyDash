@@ -5,6 +5,7 @@ import MeetingsWidget from '@/components/widgets/MeetingsWidget.vue'
 import TasksWidget from '@/components/widgets/TasksWidget.vue'
 import LastActivitiesWidget from '@/components/widgets/LastActivitiesWidget.vue'
 import WeightWidget from '@/components/widgets/WeightWidget.vue'
+import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 
 function getWeekNumber(d: Date): number {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -21,7 +22,10 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   <div class="dashboard-wrapper">
     <!-- Header -->
     <header class="dashboard-header">
-      <h1>daily<span>Dash</span></h1>
+      <div class="header-top">
+        <h1>daily<span>Dash</span></h1>
+        <ThemeToggle class="theme-btn" />
+      </div>
       <p>{{ currentDate }}</p>
     </header>
 
@@ -66,6 +70,18 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   text-align: center;
   margin-bottom: 0.875rem;
   flex-shrink: 0;
+
+  .header-top {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .theme-btn {
+    position: absolute;
+    right: 0;
+  }
 
   h1 {
     font-size: 2.5rem;

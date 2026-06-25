@@ -2,10 +2,20 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { WeightEntry } from '@/types'
 
-const STORAGE_KEY = 'dailydash_weight'
+const STORAGE_KEY  = 'dailydash_weight'
+const GOAL_KEY     = 'dailydash_weight_goal'
 
 export const useWeightStore = defineStore('weight', () => {
-  const entries = ref<WeightEntry[]>(loadFromStorage())
+  const entries    = ref<WeightEntry[]>(loadFromStorage())
+  const goalWeight = ref<number | null>(
+    localStorage.getItem(GOAL_KEY) ? Number(localStorage.getItem(GOAL_KEY)) : null
+  )
+
+  function setGoal(kg: number | null) {
+    goalWeight.value = kg
+    if (kg === null) localStorage.removeItem(GOAL_KEY)
+    else localStorage.setItem(GOAL_KEY, String(kg))
+  }
 
   const sorted = computed(() =>
     [...entries.value].sort((a, b) => a.date.localeCompare(b.date))
@@ -32,7 +42,7 @@ export const useWeightStore = defineStore('weight', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entries.value))
   }
 
-  return { entries, sorted, latest, addEntry, removeEntry }
+  return { entries, sorted, latest, goalWeight, addEntry, removeEntry, setGoal }
 })
 
 function loadFromStorage(): WeightEntry[] {

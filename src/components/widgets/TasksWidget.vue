@@ -106,6 +106,7 @@ function openForm() {
               </button>
               <span class="task-content">{{ task.content }}</span>
               <span v-if="task.due" class="task-due">{{ task.due }}</span>
+              <button class="task-delete" @click="store.removeTask(task.id)" aria-label="Löschen">✕</button>
             </li>
           </ul>
 
@@ -338,6 +339,21 @@ function openForm() {
   color: var(--color-muted);
   flex-shrink: 0;
 }
+
+.task-delete {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.6rem;
+  padding: 0.1rem 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+  &:hover { color: #f87171; }
+}
+
+.task-item:hover .task-delete { opacity: 1; }
 
 .btn-more {
   background: none;
