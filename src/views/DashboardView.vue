@@ -2,6 +2,7 @@
 import WeatherWidget from '@/components/widgets/WeatherWidget.vue'
 import SportTargetWidget from '@/components/widgets/SportTargetWidget.vue'
 import MeetingsWidget from '@/components/widgets/MeetingsWidget.vue'
+import TasksWidget from '@/components/widgets/TasksWidget.vue'
 
 function getWeekNumber(d: Date): number {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -36,7 +37,7 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
 
       <!-- Zeile 2 mitte: Tasks + Weight -->
       <div class="center-column">
-        <div class="placeholder">dailyTasks</div>
+        <TasksWidget />
         <div class="placeholder tall">dailyWeight</div>
       </div>
 
