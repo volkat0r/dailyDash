@@ -1,21 +1,81 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useActivitiesStore } from '@/stores/activitiesStore'
+import type { Activity } from '@/types'
 
 const store = useActivitiesStore()
 onMounted(() => store.load())
 
+const showAll = ref(false)
+
 const SPORT_ICONS: Record<string, string> = {
-  run:  '🏃',
-  bike: '🚴',
-  swim: '🏊',
+  run: '🏃', bike: '🚴', swim: '🏊',
+}
+
+function getWeekNumber(d: Date): number {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7))
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+  return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
+function getMondayOfWeek(d: Date): Date {
+  const day = d.getDay()
+  const diff = (day === 0 ? -6 : 1 - day)
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + diff)
+  return monday
+}
+
+// Aktivitäten nach KW gruppieren
+const groupedByWeek = computed(() => {
+  const sorted = [...store.activities].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
+
+  const groups: Array<{ kw: number; year: number; label: string; activities: Activity[] }> = []
+  const seen = new Map<string, number>()
+
+  sorted.forEach(activity => {
+    const d   = new Date(activity.date)
+    const kw  = getWeekNumber(d)
+    const yr  = d.getFullYear()
+    const key = `${yr}-${kw}`
+
+    if (!seen.has(key)) {
+      const monday = getMondayOfWeek(d)
+      const sunday = new Date(monday)
+      sunday.setDate(monday.getDate() + 6)
+
+      const fmt = (x: Date) => x.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+      seen.set(key, groups.length)
+      groups.push({
+        kw,
+        year: yr,
+        label: `KW ${kw} · ${fmt(monday)} – ${fmt(sunday)}`,
+        activities: [],
+      })
+    }
+
+    groups[seen.get(key)!].activities.push(activity)
+  })
+
+  return groups
+})
+
+// Default: nur die letzten 2 KW
+const visibleGroups = computed(() =>
+  showAll.value ? groupedByWeek.value : groupedByWeek.value.slice(0, 2)
+)
+
+const hasMore = computed(() => groupedByWeek.value.length > 2)
+
+function formatTime(dateStr: string): string {
+  return new Date(dateStr).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' })
-    + ' · '
-    + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  return new Date(dateStr).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })
 }
 
 function formatDistance(sport: string, km: number): string {
@@ -27,6 +87,18 @@ function formatDuration(minutes: number): string {
   const h = Math.floor(minutes / 60)
   const m = minutes % 60
   return h > 0 ? `${h}h ${m}min` : `${m}min`
+}
+
+// Wochensumme pro Sportart
+function weekSums(activities: Activity[]): string {
+  const sums: Record<string, number> = { run: 0, bike: 0, swim: 0 }
+  activities.forEach(a => {
+    sums[a.sport] = (sums[a.sport] ?? 0) + a.distance
+  })
+  return (['run', 'bike', 'swim'] as const)
+    .filter(s => sums[s] > 0)
+    .map(s => `${SPORT_ICONS[s]} ${formatDistance(s, sums[s])}`)
+    .join('  ')
 }
 </script>
 
@@ -41,23 +113,11 @@ function formatDuration(minutes: number): string {
       </div>
     </div>
 
-    <!-- Garmin Stats -->
-    <div v-if="store.stats.vo2max || store.stats.hrv || store.stats.bodyBattery" class="stats-row">
-      <div v-if="store.stats.vo2max" class="stat-chip">
+    <!-- Stats -->
+    <div v-if="store.stats.vo2max" class="stats-row">
+      <div class="stat-chip">
         <span class="stat-label">VO2max</span>
         <span class="stat-value">{{ store.stats.vo2max }}</span>
-      </div>
-      <div v-if="store.stats.hrv" class="stat-chip">
-        <span class="stat-label">HRV</span>
-        <span class="stat-value">{{ store.stats.hrv }}</span>
-      </div>
-      <div v-if="store.stats.bodyBattery" class="stat-chip">
-        <span class="stat-label">Body Battery</span>
-        <span class="stat-value">{{ store.stats.bodyBattery }}</span>
-      </div>
-      <div v-if="store.stats.restingHR" class="stat-chip">
-        <span class="stat-label">Ruhe-HF</span>
-        <span class="stat-value">{{ store.stats.restingHR }} bpm</span>
       </div>
     </div>
 
@@ -72,25 +132,49 @@ function formatDuration(minutes: number): string {
       Keine Aktivitäten gefunden
     </div>
 
-    <!-- Aktivitätenliste -->
-    <ul v-else class="activity-list">
-      <li
-        v-for="activity in store.activities"
-        :key="activity.id"
-        class="activity-item"
+    <!-- Aktivitäten gruppiert nach KW -->
+    <template v-else>
+      <div
+        v-for="group in visibleGroups"
+        :key="`${group.year}-${group.kw}`"
+        class="week-group"
       >
-        <span class="activity-icon">{{ SPORT_ICONS[activity.sport] ?? '🏅' }}</span>
-        <div class="activity-content">
-          <span class="activity-name">{{ activity.name }}</span>
-          <span class="activity-meta">
-            {{ formatDate(activity.date) }}
-            · {{ formatDistance(activity.sport, activity.distance) }}
-            · {{ formatDuration(activity.duration) }}
-            <span v-if="activity.heartrate"> · ❤️ {{ activity.heartrate }} bpm</span>
-          </span>
+        <!-- KW-Header -->
+        <div class="week-header">
+          <span class="week-label">{{ group.label }}</span>
+          <span class="week-sums">{{ weekSums(group.activities) }}</span>
         </div>
-      </li>
-    </ul>
+
+        <!-- Aktivitäten der Woche -->
+        <ul class="activity-list">
+          <li
+            v-for="activity in group.activities"
+            :key="activity.id"
+            class="activity-item"
+          >
+            <span class="activity-icon">{{ SPORT_ICONS[activity.sport] ?? '🏅' }}</span>
+            <div class="activity-content">
+              <span class="activity-name">{{ activity.name }}</span>
+              <span class="activity-meta">
+                {{ formatDate(activity.date) }} · {{ formatTime(activity.date) }}
+                · {{ formatDistance(activity.sport, activity.distance) }}
+                · {{ formatDuration(activity.duration) }}
+                <span v-if="activity.heartrate"> · ❤️ {{ activity.heartrate }} bpm</span>
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mehr anzeigen -->
+      <button
+        v-if="hasMore"
+        class="btn-more"
+        @click="showAll = !showAll"
+      >
+        {{ showAll ? '↑ Weniger anzeigen' : `··· Weitere ${groupedByWeek.length - 2} Wochen anzeigen` }}
+      </button>
+    </template>
   </div>
 </template>
 
@@ -117,10 +201,7 @@ function formatDuration(minutes: number): string {
     strong { color: var(--color-text); }
   }
 
-  .header-actions {
-    display: flex;
-    gap: 0.25rem;
-  }
+  .header-actions { display: flex; gap: 0.25rem; }
 
   .btn-reload, .widget-menu {
     background: none;
@@ -138,7 +219,6 @@ function formatDuration(minutes: number): string {
 
 .stats-row {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -147,20 +227,12 @@ function formatDuration(minutes: number): string {
   border-radius: 0.5rem;
   padding: 0.3rem 0.6rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  flex: 1;
-  min-width: 70px;
+  gap: 0.4rem;
+  align-items: center;
 
-  .stat-label {
-    font-size: 0.6rem;
-    color: var(--color-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
+  .stat-label { font-size: 0.65rem; color: var(--color-muted); }
   .stat-value {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     background: var(--gradient);
     -webkit-background-clip: text;
@@ -173,44 +245,64 @@ function formatDuration(minutes: number): string {
   color: var(--color-muted);
   text-align: center;
   padding: 1rem 0;
-  line-height: 1.5;
-
   &.error { color: #f87171; }
+}
+
+.week-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.week-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  background: var(--color-border);
+  border-radius: 0.4rem;
+
+  .week-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .week-sums {
+    font-size: 0.65rem;
+    color: var(--color-muted);
+  }
 }
 
 .activity-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.2rem;
 }
 
 .activity-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.5rem 0.6rem;
-  border-radius: 0.5rem;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.4rem;
   transition: background 0.15s;
-
   &:hover { background: var(--color-border); }
 }
 
-.activity-icon {
-  font-size: 1.1rem;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
+.activity-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
 .activity-content {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
   min-width: 0;
 }
 
 .activity-name {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--color-text);
   white-space: nowrap;
@@ -218,8 +310,18 @@ function formatDuration(minutes: number): string {
   text-overflow: ellipsis;
 }
 
-.activity-meta {
-  font-size: 0.68rem;
+.activity-meta { font-size: 0.65rem; color: var(--color-muted); }
+
+.btn-more {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 0.4rem;
   color: var(--color-muted);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0.4rem;
+  text-align: center;
+  transition: color 0.15s, border-color 0.15s;
+  &:hover { color: var(--color-pink); border-color: var(--color-pink); }
 }
 </style>
