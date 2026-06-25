@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { Task, TaskProject } from '@/types'
 
 const TOKEN = import.meta.env.VITE_TODOIST_TOKEN as string
-const BASE   = 'https://api.todoist.com/rest/v2'
+const BASE   = '/api/todoist'
 
 const client = axios.create({
   baseURL: BASE,
