@@ -35,6 +35,25 @@ html, body {
   height: 100%;
 }
 
+/* Gradient-Linie oben */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e040fb 0%, #7c3aed 100%);
+  z-index: 9999;
+}
+
+/* Sport- & Aktivitäts-Icons einfarbig (außer Weather-Widget) */
+.sport-widget .sport-icon,
+.activity-icon,
+.week-sums {
+  filter: grayscale(1) brightness(2);
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }
