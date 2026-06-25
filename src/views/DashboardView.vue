@@ -70,17 +70,18 @@ const currentDate = `${now.toLocaleDateString('de-DE', { day: '2-digit', month: 
   h1 {
     font-size: 2.5rem;
     font-weight: 300;
-    letter-spacing: 0.25em;
+    letter-spacing: 0;
     line-height: 1;
 
     span { font-weight: 700; }
   }
 
   p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 300;
     color: var(--color-muted);
-    margin-top: 0.6rem;
-    letter-spacing: 0.18em;
+    margin-top: 0.5rem;
+    letter-spacing: 0.08em;
   }
 }
 
