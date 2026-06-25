@@ -17,7 +17,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/garmin/, ''),
       },
       '/api/todoist': {
-        target: 'https://api.todoist.com/rest/v2',
+        target: 'https://api.todoist.com/api/v1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/todoist/, ''),
       },

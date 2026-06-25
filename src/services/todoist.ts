@@ -2,28 +2,33 @@ import axios from 'axios'
 import type { Task, TaskProject } from '@/types'
 
 const TOKEN = import.meta.env.VITE_TODOIST_TOKEN as string
-const BASE   = '/api/todoist'
 
 const client = axios.create({
-  baseURL: BASE,
+  baseURL: '/api/todoist',
   headers: { Authorization: `Bearer ${TOKEN}` },
 })
 
 export async function fetchProjects(): Promise<TaskProject[]> {
-  const { data } = await client.get('/projects')
-  return data.map((p: { id: string; name: string }) => ({
-    id: p.id,
-    name: p.name,
-  }))
+  try {
+    const { data } = await client.get('/projects')
+    const list = data.results ?? data
+    return list.map((p: { id: string; name: string }) => ({
+      id: p.id,
+      name: p.name,
+    }))
+  } catch {
+    return []
+  }
 }
 
 export async function fetchTasks(): Promise<Task[]> {
-  const [{ data: tasks }, projects] = await Promise.all([
+  const [{ data: tasksData }, projects] = await Promise.all([
     client.get('/tasks'),
     fetchProjects(),
   ])
 
   const projectMap = new Map(projects.map(p => [p.id, p.name]))
+  const tasks = tasksData.results ?? tasksData
 
   return tasks.map((t: {
     id: string
@@ -34,7 +39,7 @@ export async function fetchTasks(): Promise<Task[]> {
   }) => ({
     id: t.id,
     content: t.content,
-    completed: t.is_completed,
+    completed: t.is_completed ?? false,
     projectId: t.project_id,
     projectName: projectMap.get(t.project_id) ?? 'Eingang',
     due: t.due?.date,
