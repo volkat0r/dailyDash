@@ -4,6 +4,7 @@ const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string
 const API_KEY   = import.meta.env.VITE_GOOGLE_API_KEY as string
 const SCOPES    = 'https://www.googleapis.com/auth/calendar.readonly'
 const DISCOVERY = 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'
+const TOKEN_KEY = 'gapi_token'
 
 let gapiReady = false
 let tokenClient: google.accounts.oauth2.TokenClient | null = null
@@ -17,6 +18,30 @@ function loadScript(src: string): Promise<void> {
     s.onerror = reject
     document.head.appendChild(s)
   })
+}
+
+function saveToken(token: GoogleApiOAuth2TokenObject) {
+  localStorage.setItem(TOKEN_KEY, JSON.stringify({
+    ...token,
+    expires_at: Date.now() + parseInt(token.expires_in) * 1000,
+  }))
+}
+
+function restoreToken(): boolean {
+  const raw = localStorage.getItem(TOKEN_KEY)
+  if (!raw) return false
+  try {
+    const token = JSON.parse(raw)
+    // Token noch mindestens 5 Minuten gültig?
+    if (token.expires_at - Date.now() < 5 * 60 * 1000) {
+      localStorage.removeItem(TOKEN_KEY)
+      return false
+    }
+    gapi.client.setToken(token)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export async function initGoogleCalendar(): Promise<void> {
@@ -39,15 +64,40 @@ export async function initGoogleCalendar(): Promise<void> {
   gapiReady = true
 }
 
+export function tryRestoreSession(): boolean {
+  return restoreToken()
+}
+
+// Stilles Token-Refresh ohne Popup (funktioniert wenn Nutzer schon zugestimmt hat)
+export function requestSilentAccess(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!tokenClient) { reject(new Error('Google nicht initialisiert')); return }
+    tokenClient.callback = (resp) => {
+      if (resp.error) { reject(new Error(resp.error)); return }
+      saveToken(gapi.client.getToken()!)
+      resolve()
+    }
+    tokenClient.requestAccessToken({ prompt: '' })
+  })
+}
+
 export function requestAccess(): Promise<void> {
   return new Promise((resolve, reject) => {
     if (!tokenClient) { reject(new Error('Google nicht initialisiert')); return }
     tokenClient.callback = (resp) => {
-      if (resp.error) reject(new Error(resp.error))
-      else resolve()
+      if (resp.error) { reject(new Error(resp.error)); return }
+      saveToken(gapi.client.getToken()!)
+      resolve()
     }
     tokenClient.requestAccessToken({ prompt: 'consent' })
   })
+}
+
+export function signOut() {
+  const token = gapi.client.getToken()
+  if (token) (google.accounts.oauth2 as unknown as { revoke: (t: string, cb: () => void) => void }).revoke(token.access_token, () => {})
+  gapi.client.setToken(null)
+  localStorage.removeItem(TOKEN_KEY)
 }
 
 export function isSignedIn(): boolean {

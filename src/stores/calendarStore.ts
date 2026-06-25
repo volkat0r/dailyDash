@@ -4,7 +4,9 @@ import type { CalendarEvent } from '@/types'
 import {
   initGoogleCalendar,
   requestAccess,
-  isSignedIn,
+  requestSilentAccess,
+  tryRestoreSession,
+  signOut as gapiSignOut,
   fetchEventsForMonth,
   fetchEventsForDay,
 } from '@/services/googleCalendar'
@@ -14,14 +16,13 @@ export const useCalendarStore = defineStore('calendar', () => {
   const loading     = ref(false)
   const error       = ref<string | null>(null)
 
-  const selectedDate   = ref(new Date())
-  const viewYear       = ref(new Date().getFullYear())
-  const viewMonth      = ref(new Date().getMonth())
+  const selectedDate = ref(new Date())
+  const viewYear     = ref(new Date().getFullYear())
+  const viewMonth    = ref(new Date().getMonth())
 
-  const monthEvents    = ref<CalendarEvent[]>([])
-  const dayEvents      = ref<CalendarEvent[]>([])
+  const monthEvents  = ref<CalendarEvent[]>([])
+  const dayEvents    = ref<CalendarEvent[]>([])
 
-  // Tage im aktuellen Monat die Termine haben
   const daysWithEvents = computed(() => {
     const days = new Set<number>()
     monthEvents.value.forEach(e => {
@@ -35,9 +36,24 @@ export const useCalendarStore = defineStore('calendar', () => {
   async function init() {
     try {
       await initGoogleCalendar()
-      signedIn.value = isSignedIn()
-      if (signedIn.value) await loadMonth()
-    } catch (e) {
+
+      // 1. Gespeicherter Token noch gültig?
+      if (tryRestoreSession()) {
+        signedIn.value = true
+        await loadMonth()
+        return
+      }
+
+      // 2. Nutzer hat schon zugestimmt → stiller Refresh ohne Popup
+      try {
+        await requestSilentAccess()
+        signedIn.value = true
+        await loadMonth()
+      } catch {
+        // Kein gültiger Token → Anmelde-Button zeigen
+        signedIn.value = false
+      }
+    } catch {
       error.value = 'Google Calendar konnte nicht initialisiert werden.'
     }
   }
@@ -50,18 +66,25 @@ export const useCalendarStore = defineStore('calendar', () => {
       signedIn.value = true
       await loadMonth()
       await loadDay(selectedDate.value)
-    } catch (e) {
+    } catch {
       error.value = 'Anmeldung fehlgeschlagen.'
     } finally {
       loading.value = false
     }
   }
 
+  function signOutUser() {
+    gapiSignOut()
+    signedIn.value = false
+    monthEvents.value = []
+    dayEvents.value = []
+  }
+
   async function loadMonth() {
     try {
       monthEvents.value = await fetchEventsForMonth(viewYear.value, viewMonth.value)
       await loadDay(selectedDate.value)
-    } catch (e) {
+    } catch {
       error.value = 'Termine konnten nicht geladen werden.'
     }
   }
@@ -71,7 +94,7 @@ export const useCalendarStore = defineStore('calendar', () => {
     loading.value = true
     try {
       dayEvents.value = await fetchEventsForDay(date)
-    } catch (e) {
+    } catch {
       dayEvents.value = []
     } finally {
       loading.value = false
@@ -94,6 +117,6 @@ export const useCalendarStore = defineStore('calendar', () => {
     signedIn, loading, error,
     selectedDate, viewYear, viewMonth,
     monthEvents, dayEvents, daysWithEvents,
-    init, signIn, loadDay, prevMonth, nextMonth,
+    init, signIn, signOutUser, loadDay, prevMonth, nextMonth,
   }
 })
