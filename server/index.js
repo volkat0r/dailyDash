@@ -5,19 +5,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware'
 const app  = express()
 const PORT = process.env.PORT || 3000
 
-// Erlaubte Origins: deine Hostinger-Domain + localhost
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://localhost:4173',
-  process.env.FRONTEND_URL,
-].filter(Boolean)
-
-app.use(cors({
-  origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true)
-    cb(new Error(`CORS: ${origin} nicht erlaubt`))
-  },
-}))
+app.use(cors())
 
 // Health-Check für Railway
 app.get('/health', (_req, res) => res.json({ ok: true }))
