@@ -11,9 +11,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api/garmin': {
-        target: 'http://localhost:3001',
-        changeOrigin: false,
+      '/api/intervals': {
+        target: 'https://intervals.icu/api/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/intervals/, ''),
       },
       '/api/todoist': {
         target: 'https://api.todoist.com/api/v1',

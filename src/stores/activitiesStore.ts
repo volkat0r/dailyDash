@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Activity, GarminStats } from '@/types'
-import { fetchActivities, fetchStats } from '@/services/garmin'
+import { fetchActivities, fetchStats } from '@/services/intervals'
 
 export const useActivitiesStore = defineStore('activities', () => {
   const activities = ref<Activity[]>([])
@@ -17,7 +17,7 @@ export const useActivitiesStore = defineStore('activities', () => {
       activities.value = acts
       stats.value      = st
     } catch {
-      error.value = 'Garmin-Daten konnten nicht geladen werden. Läuft der Server? (npm run server)'
+      error.value = 'Intervals.icu Daten konnten nicht geladen werden.'
     } finally {
       loading.value = false
     }
